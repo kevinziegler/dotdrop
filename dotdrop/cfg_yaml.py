@@ -175,6 +175,16 @@ class CfgYaml:
         # before being templated in order to allow cyclic
         # references between them
 
+        # process imported variables (import_variables)
+        newvars = self._import_variables()
+        self._clear_profile_vars(newvars)
+        self._add_variables(newvars)
+
+        # parse the "uservariables" block
+        uvariables = self._parse_blk_uservariables(self._yaml_dict,
+                                                   self.variables)
+        self._add_variables(uvariables, template=False, prio=False)
+
         # parse the "variables" block
         var = self._parse_blk_variables(self._yaml_dict)
         self._add_variables(var, template=False)
@@ -249,11 +259,6 @@ class CfgYaml:
         # import elements
         ##################################################
 
-        # process imported variables (import_variables)
-        newvars = self._import_variables()
-        self._clear_profile_vars(newvars)
-        self._add_variables(newvars)
-
         # process imported actions (import_actions)
         self._import_actions()
         # process imported profile dotfiles (import)
@@ -280,10 +285,6 @@ class CfgYaml:
         # template dotfiles entries
         self._template_dotfiles_entries()
 
-        # parse the "uservariables" block
-        uvariables = self._parse_blk_uservariables(self._yaml_dict,
-                                                   self.variables)
-        self._add_variables(uvariables, template=False, prio=False)
 
         # end of parsing
         if self._debug:
